@@ -200,7 +200,7 @@ class MKVToolNix:
       subtitle_language_code = language_code or subtitle_language_info["language_code"]
       subtitle_language = language or subtitle_language_info["language"]
       is_default_language_track = subtitle_language == default_language_track
-      is_default_track = subtitle_presets["is_default_track"] or is_default_language_track
+      is_default_track = subtitle_presets["is_default_track"] or is_default_language_track or (default_language_track == "Default")
       subtitle_language_setting = f"--language 0:{subtitle_language_code}"
 
       # Subtitle language, track name, and path
