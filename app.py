@@ -85,6 +85,7 @@ def process_batch():
   is_remove_subtitles = settings["isRemoveSubtitles"]
   is_extract_subtitles = settings["isExtractSubtitles"]
   is_same_as_source = settings["isSameAsSource"]
+  is_remember_output_dir = settings["isRememberOutputDir"]
   is_only_video_files = is_extract_subtitles or is_remove_subtitles
 
   # Get batch of files to process
@@ -102,8 +103,17 @@ def process_batch():
   # Iterate through array of tuples and merge
   for video_input_path, subtitle_input_paths in batch:
     video_name = PurePath(video_input_path).stem
+    
+    relative_path = ""
+    if is_remember_output_dir:
+      relative_path = os.path.dirname(
+          os.path.relpath(video_input_path, input_directory))
+
     video_output_path = original_output_path = os.path.join(
-      output_directory, f"{video_name}"
+        output_directory, relative_path, f"{video_name}"
+    )
+    subtitle_output_path = original_output_path = os.path.join(
+        output_directory, relative_path
     )
     video_output_extension = ".mkv"
 
@@ -130,7 +140,9 @@ def process_batch():
 
     # If "extract" subtitles
     elif is_extract_subtitles:
-      subtitle_output_directory = None if is_same_as_source else output_directory
+      subtitle_output_directory = None if is_same_as_source else subtitle_output_path
+      if subtitle_output_directory:
+        os.makedirs(subtitle_output_directory, exist_ok=True)
       MKVToolNix.extract_subtitles(video_input_path, subtitle_output_directory)
 
     # If "merge" subtitles
